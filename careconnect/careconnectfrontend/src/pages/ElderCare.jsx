@@ -1,0 +1,4 @@
+import { Link } from 'react-router-dom'
+export default function ElderCare() {
+  return <section className="service-detail"><div className="detail-copy"><p className="eyebrow">ELDER CARE</p><h1>Respectful support for the people who cared for us.</h1><p>Explore assistance options that can help older adults with everyday routines, companionship, and family coordination.</p><ul className="check-list"><li>Companionship and conversation</li><li>Help with daily routines</li><li>Family-friendly care planning</li><li>Booking requests in one place</li></ul><Link className="btn btn-primary" to="/booking?type=ELDER">Request elder care →</Link></div><div className="detail-art elder-art"><span>🌿</span><div className="floating-note">Care with dignity<br/><small>Every day matters</small></div></div></section>
+}

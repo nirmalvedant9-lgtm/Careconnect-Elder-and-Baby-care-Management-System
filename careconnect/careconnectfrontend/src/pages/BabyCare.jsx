@@ -1,0 +1,4 @@
+import { Link } from 'react-router-dom'
+export default function BabyCare() {
+  return <section className="service-detail"><div className="detail-copy"><p className="eyebrow">BABY CARE</p><h1>Gentle support for your family's newest chapter.</h1><p>Discover baby-care support options designed to help families plan routines and find an extra pair of caring hands.</p><ul className="check-list"><li>Support with daily baby routines</li><li>Attentive companionship and supervision</li><li>Flexible family care requests</li><li>Simple booking flow</li></ul><Link className="btn btn-primary" to="/booking?type=BABY">Request baby care →</Link></div><div className="detail-art baby-art"><span>🍼</span><div className="floating-note">Little moments<br/><small>Big love, gentle care</small></div></div></section>
+}
