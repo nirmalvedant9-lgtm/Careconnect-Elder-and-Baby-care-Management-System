@@ -4,9 +4,9 @@ import CaregiverCard from '../components/CaregiverCard'
 import { apiRequest } from '../services/api'
 
 const demoCaregivers = [
-  { id: 1, name: 'Aarohi Sharma', careType: 'Baby Care', experience: 4, available: true },
-  { id: 2, name: 'Meera Patil', careType: 'Elder Care', experience: 6, available: true },
-  { id: 3, name: 'Ananya Deshmukh', careType: 'Family Care', experience: 3, available: true }
+  { id: 1, name: 'Aarohi Sharma', careType: 'Baby Care', experience: 4, hourly_rate: 100.00, available: true },
+  { id: 2, name: 'Meera Patil', careType: 'Elder Care', experience: 6, hourly_rate: 100.00, available: true },
+  { id: 3, name: 'Ananya Deshmukh', careType: 'Family Care', experience: 3, hourly_rate: 100.00, available: true }
 ]
 
 export default function Caregivers() {

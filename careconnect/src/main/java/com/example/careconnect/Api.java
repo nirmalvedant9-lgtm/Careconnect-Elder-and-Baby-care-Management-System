@@ -241,7 +241,9 @@ public class Api {
             @RequestParam(required = false) String q) {
 
         StringBuilder sql = new StringBuilder("""
-            SELECT c.*, u.name, u.email, u.phone contact_phone
+            SELECT c.*, 
+                   100.00 AS hourly_rate,
+                   u.name, u.email, u.phone contact_phone
             FROM caregivers c 
             JOIN users u ON u.id = c.user_id 
             WHERE (c.verified = TRUE OR :admin = TRUE)
@@ -271,7 +273,9 @@ public class Api {
     @GetMapping("/caregivers/{id}")
     public Map<String, Object> caregiverDetails(@PathVariable long id) {
         var cg = one("""
-            SELECT c.*, u.name, u.email, u.phone contact_phone, u.address
+            SELECT c.*, 
+                   100.00 AS hourly_rate,
+                   u.name, u.email, u.phone contact_phone, u.address
             FROM caregivers c 
             JOIN users u ON u.id = c.user_id 
             WHERE c.id = :id
@@ -448,7 +452,7 @@ public class Api {
                    cu.name caregiver_name, cu.email caregiver_email, cu.phone caregiver_phone,
                    fu.name family_name, fu.email family_email, fu.phone family_phone,
                    d.name dependent_name, d.type dependent_type, d.medical_conditions, d.emergency_contact,
-                   p.status payment_status, p.amount payment_amount,
+                   p.status payment_status, p.amount payment_amount, p.payment_method payment_method, p.id payment_id,
                    r.rating review_rating, r.comment review_comment,
                    (SELECT COUNT(*) FROM care_logs cl WHERE cl.booking_id = b.id) logs_count
             FROM bookings b 
@@ -550,8 +554,8 @@ public class Api {
         }
 
         var cgRecord = one("SELECT hourly_rate FROM caregivers WHERE id = :id", p("id", cg));
-        double rate = cgRecord != null ? doubleNumber(cgRecord, "hourly_rate") : 25.0;
-        if (rate <= 0) rate = 25.0;
+        double rate = cgRecord != null && doubleNumber(cgRecord, "hourly_rate") > 0 ? doubleNumber(cgRecord, "hourly_rate") : 100.0;
+        if (rate <= 0) rate = 100.0;
         double total = hours * rate;
 
         long id = inserted("""
@@ -570,12 +574,24 @@ public class Api {
         ));
 
         // Create initial pending invoice
+        String payMethod = string(v, "paymentMethod");
+        if (payMethod.isBlank()) payMethod = string(v, "payment_method");
+        if (payMethod.isBlank()) payMethod = "CARD";
+
         run("""
             INSERT INTO payments(booking_id, user_id, amount, status, payment_method, transaction_id)
-            VALUES(:bid, :uid, :amount, 'UNPAID', 'CARD', :tx)
-        """, p("bid", id, "uid", me().id(), "amount", total, "tx", "INV-CC-" + (10000 + id)));
+            VALUES(:bid, :uid, :amount, 'UNPAID', :pm, :tx)
+        """, p("bid", id, "uid", me().id(), "amount", total, "pm", payMethod.toUpperCase(Locale.ROOT), "tx", "INV-CC-" + (10000 + id)));
 
-        return p("id", id, "totalAmount", total, "message", "Care request submitted successfully");
+        return p(
+                "id", id,
+                "totalAmount", total,
+                "hourlyRate", rate,
+                "hours", hours,
+                "paymentMethod", payMethod.toUpperCase(Locale.ROOT),
+                "paymentStatus", "UNPAID",
+                "message", "Care request submitted successfully"
+        );
     }
 
     @PutMapping("/bookings/{id}/status")
@@ -764,7 +780,7 @@ public class Api {
     public List<Map<String, Object>> payments() {
         String where = admin() ? "1=1" : "p.user_id = :u";
         return rows("""
-            SELECT p.*, b.service_date, b.hours, b.care_type, b.status booking_status,
+            SELECT p.*, b.service_date, b.hours, b.care_type, b.status booking_status, b.hourly_rate, b.total_amount,
                    cu.name caregiver_name, fu.name family_name, d.name dependent_name
             FROM payments p 
             JOIN bookings b ON b.id = p.booking_id 
@@ -784,6 +800,7 @@ public class Api {
         check(admin() || number(pRecord, "user_id") == me().id());
 
         String method = string(v, "payment_method");
+        if (method.isBlank()) method = string(v, "paymentMethod");
         if (method.isBlank()) method = "CARD";
 
         String txnId = "TXN-CC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
@@ -792,7 +809,7 @@ public class Api {
             UPDATE payments 
             SET status = 'PAID', payment_method = :m, transaction_id = :tx, paid_at = CURRENT_TIMESTAMP
             WHERE id = :id
-        """, p("id", id, "m", method, "tx", txnId));
+        """, p("id", id, "m", method.toUpperCase(Locale.ROOT), "tx", txnId));
 
         return p("message", "Payment processed successfully!", "transactionId", txnId, "status", "PAID");
     }

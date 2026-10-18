@@ -38,21 +38,52 @@ export default function Dashboard() {
 
     {recentBookings.length > 0 && (
       <div className="dashboard-panel" style={{ marginBottom: '1.5rem' }}>
-        <div><p className="eyebrow">RECENT REQUESTS</p><h2>Your Bookings</h2></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div><p className="eyebrow">RECENT REQUESTS</p><h2>Your Bookings & Invoices</h2></div>
+          <Link to="/payments" className="text-link" style={{ marginTop: 0 }}>View all payments →</Link>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
-          {recentBookings.map(b => (
-            <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.2rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <div>
-                <strong>Caregiver: {b.caregiver_name || `ID #${b.caregiver_id}`}</strong>
-                <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Date: {new Date(b.service_date).toLocaleDateString()} • {b.hours} hrs • For {b.dependent_name || 'Dependent'}</div>
+          {recentBookings.map(b => {
+            const amountVal = b.payment_amount != null ? Number(b.payment_amount).toFixed(2) : (b.total_amount != null ? Number(b.total_amount).toFixed(2) : '—')
+            const isPaid = b.payment_status === 'PAID'
+            return (
+              <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 1.2rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '0.8rem' }}>
+                <div>
+                  <strong>Caregiver: {b.caregiver_name || `ID #${b.caregiver_id}`}</strong>
+                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>
+                    Date: {new Date(b.service_date).toLocaleDateString()} • {b.hours} hrs • For {b.dependent_name || 'Dependent'}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', marginTop: '4px', fontWeight: 600, color: '#173052' }}>
+                    Booking Amount: <span style={{ color: '#0b2d5c', fontWeight: 800 }}>₹{amountVal}</span>
+                    {' • '}
+                    <span style={{ color: isPaid ? '#2e7d32' : '#b45309' }}>
+                      {isPaid ? '✓ Paid' : '⏳ Unpaid'} ({b.payment_method || 'CARD'})
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span className={`pill ${b.status === 'ACCEPTED' ? 'pill-green' : ''}`}>{b.status || 'PENDING'}</span>
+                  {!isPaid && (
+                    <Link to="/payments" className="btn btn-outline btn-small" style={{ padding: '6px 10px', fontSize: '11px' }}>
+                      Pay Now
+                    </Link>
+                  )}
+                </div>
               </div>
-              <span className={`pill ${b.status === 'ACCEPTED' ? 'pill-green' : ''}`}>{b.status || 'PENDING'}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     )}
 
-    <div className="dashboard-panel"><div><p className="eyebrow">QUICK ACTIONS</p><h2>What would you like to do?</h2><p className="muted">Choose a service to continue.</p></div><div className="quick-actions"><Link to="/baby-care" className="quick-action"><span>🍼</span><strong>Explore baby care</strong><small>Support for little ones →</small></Link><Link to="/elder-care" className="quick-action"><span>🌿</span><strong>Explore elder care</strong><small>Support for older adults →</small></Link><Link to="/booking" className="quick-action"><span>＋</span><strong>Make a booking</strong><small>Request a caregiver →</small></Link></div></div>
+    <div className="dashboard-panel">
+      <div><p className="eyebrow">QUICK ACTIONS</p><h2>What would you like to do?</h2><p className="muted">Choose a service to continue.</p></div>
+      <div className="quick-actions" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+        <Link to="/baby-care" className="quick-action"><span>🍼</span><strong>Explore baby care</strong><small>Support for little ones →</small></Link>
+        <Link to="/elder-care" className="quick-action"><span>🌿</span><strong>Explore elder care</strong><small>Support for older adults →</small></Link>
+        <Link to="/booking" className="quick-action"><span>＋</span><strong>Make a booking</strong><small>Request care with pricing →</small></Link>
+        <Link to="/payments" className="quick-action"><span>💳</span><strong>View payments & bills</strong><small>Check invoices & pay online →</small></Link>
+      </div>
+    </div>
   </section></div>
 }

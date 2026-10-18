@@ -4,6 +4,7 @@ const links = [
   ['Dashboard', '/dashboard', '▦'],
   ['Caregivers', '/caregivers', '♡'],
   ['Book care', '/booking', '＋'],
+  ['Payments', '/payments', '💳'],
   ['Reminders', '/reminders', '◷'],
   ['Admin', '/admin', '⚙']
 ]

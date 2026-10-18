@@ -3,7 +3,10 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL
+    role VARCHAR(50) NOT NULL,
+    phone VARCHAR(50),
+    address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS caregivers (
@@ -32,8 +35,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     user_id BIGINT NOT NULL,
     caregiver_id BIGINT NOT NULL,
     dependent_id BIGINT NOT NULL,
+    care_type VARCHAR(50) DEFAULT 'BABY',
     service_date DATETIME NOT NULL,
     hours INT DEFAULT 1,
+    hourly_rate DECIMAL(10,2) DEFAULT 100.00,
+    total_amount DECIMAL(10,2) DEFAULT 100.00,
+    notes TEXT,
     status VARCHAR(50) DEFAULT 'PENDING',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (caregiver_id) REFERENCES caregivers(id) ON DELETE CASCADE,
@@ -68,7 +75,26 @@ CREATE TABLE IF NOT EXISTS reviews (
 CREATE TABLE IF NOT EXISTS payments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     booking_id BIGINT NOT NULL UNIQUE,
+    user_id BIGINT,
     amount DECIMAL(10,2) NOT NULL,
     status VARCHAR(50) DEFAULT 'UNPAID',
+    payment_method VARCHAR(50) DEFAULT 'CARD',
+    transaction_id VARCHAR(100),
+    paid_at DATETIME,
     FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
+
+-- Ensure columns exist if tables were previously created with older schema
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS care_type VARCHAR(50) DEFAULT 'BABY';
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS hourly_rate DECIMAL(10,2) DEFAULT 100.00;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS total_amount DECIMAL(10,2) DEFAULT 100.00;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'CARD';
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS paid_at DATETIME;
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

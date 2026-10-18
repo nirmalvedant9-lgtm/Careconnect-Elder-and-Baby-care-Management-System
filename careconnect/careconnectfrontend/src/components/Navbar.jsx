@@ -17,6 +17,7 @@ export default function Navbar() {
       </nav>
       <div className="nav-actions">
         {user ? <>
+          <Link className="btn btn-outline btn-small" to="/payments">💳 Payments</Link>
           <Link className="btn btn-outline btn-small" to="/dashboard">Dashboard</Link>
           <button className="btn btn-primary btn-small" onClick={signOut}>Log out</button>
         </> : <>

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { authService } from '../services/authService'
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'FAMILY' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', role: 'FAMILY' })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,6 +23,7 @@ export default function Register() {
       {error && <div className="alert alert-error">{error}</div>}{success && <div className="alert alert-success">{success}</div>}
       <label>Full name<input required placeholder="Your full name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></label>
       <label>Email address<input type="email" required placeholder="you@example.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></label>
+      <label>Phone number<input type="tel" required placeholder="e.g. +91 98765 43210" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></label>
       <label>Password<input type="password" required minLength="6" placeholder="At least 6 characters" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} /></label>
       <label>Account type<select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}><option value="FAMILY">Family (Elder & Baby Care)</option><option value="CAREGIVER">Caregiver</option></select></label>
       <button className="btn btn-primary full-width" disabled={loading}>{loading ? 'Creating account…' : 'Create account'}</button>
